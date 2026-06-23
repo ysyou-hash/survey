@@ -1,0 +1,311 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.header { padding: 1.5rem 0 1rem; }
+.header h1 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.header p { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+.tab.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+.tab:hover:not(.active) { background: var(--color-background-secondary); }
+.filters { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
+.filter-label { font-size: 12px; color: var(--color-text-secondary); }
+.chip { padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+.chip.on { background: var(--color-background-warning); color: var(--color-text-warning); border-color: var(--color-border-warning); }
+.restaurant-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.r-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s; }
+.r-card:hover { border-color: var(--color-border-primary); }
+.r-card.selected { border: 2px solid var(--color-border-info); }
+.r-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.r-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.r-rating { font-size: 13px; color: var(--color-text-warning); font-weight: 500; }
+.r-type-badge { font-size: 11px; padding: 3px 8px; border-radius: 10px; background: var(--color-background-info); color: var(--color-text-info); display: inline-block; margin-bottom: 6px; }
+.r-staff { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; border: 1.5px solid var(--color-background-primary); }
+.avatar.match { background: var(--color-background-success); color: var(--color-text-success); }
+.avatar.warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+.r-notes { font-size: 12px; color: var(--color-text-secondary); margin-top: 8px; line-height: 1.5; }
+.risk-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--color-background-danger); color: var(--color-text-danger); display: inline-flex; align-items: center; gap: 3px; margin-top: 6px; }
+.rec-badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: var(--color-background-success); color: var(--color-text-success); display: inline-block; margin-bottom: 6px; }
+.detail-panel { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-top: 1.25rem; display: none; }
+.detail-panel.visible { display: block; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+.detail-section h3 { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+.staff-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.staff-row:last-child { border-bottom: none; }
+.staff-name { font-weight: 500; min-width: 60px; color: var(--color-text-primary); }
+.staff-pref { color: var(--color-text-secondary); flex: 1; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-good { background: #22c55e; }
+.dot-warn { background: #f59e0b; }
+.dot-bad { background: #ef4444; }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.25rem; }
+.stat-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.75rem; text-align: center; }
+.stat-num { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.stat-label { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.staff-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+.staff-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 0.875rem 1rem; }
+.staff-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.staff-avatar-lg { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; background: var(--color-background-info); color: var(--color-text-info); flex-shrink: 0; }
+.staff-title-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.staff-role { font-size: 12px; color: var(--color-text-secondary); }
+.pref-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 3px 0; }
+.pref-chip-good { font-size: 11px; padding: 2px 7px; border-radius: 8px; background: var(--color-background-success); color: var(--color-text-success); }
+.pref-chip-bad { font-size: 11px; padding: 2px 7px; border-radius: 8px; background: var(--color-background-danger); color: var(--color-text-danger); }
+.pref-chip-warn { font-size: 11px; padding: 2px 7px; border-radius: 8px; background: var(--color-background-warning); color: var(--color-text-warning); }
+.best-pick { font-size: 12px; color: var(--color-text-info); margin-top: 6px; }
+.divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1.25rem 0; }
+</style>
+
+<h2 class="sr-only">인천 남동구 고잔동 인근 직원 취향 맞춤 음식점 추천 인터랙티브 대시보드</h2>
+
+<div class="header">
+  <h1><i class="ti ti-map-pin" aria-hidden="true" style="font-size:18px; vertical-align:-2px; margin-right:6px;"></i>고잔동 670-6 주변 추천 음식점</h1>
+  <p>직원 12명 취향 및 알러지 기준 맞춤 추천 · 고잔동 기준 2km 이내</p>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">총 직원 수</div></div>
+  <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">알러지·제약</div></div>
+  <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">추천 음식점</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('restaurant')"><i class="ti ti-building-store" aria-hidden="true" style="font-size:14px; vertical-align:-1px; margin-right:4px;"></i>음식점 추천</button>
+  <button class="tab" onclick="switchTab('staff')"><i class="ti ti-users" aria-hidden="true" style="font-size:14px; vertical-align:-1px; margin-right:4px;"></i>직원별 분석</button>
+  <button class="tab" onclick="switchTab('risk')"><i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:14px; vertical-align:-1px; margin-right:4px;"></i>Risk 체크</button>
+</div>
+
+<div id="tab-restaurant">
+  <div class="filters">
+    <span class="filter-label">필터:</span>
+    <button class="chip on" onclick="toggleFilter(this,'all')">전체</button>
+    <button class="chip" onclick="toggleFilter(this,'한식')">한식</button>
+    <button class="chip" onclick="toggleFilter(this,'일식')">일식</button>
+    <button class="chip" onclick="toggleFilter(this,'중식')">중식</button>
+    <button class="chip" onclick="toggleFilter(this,'양식')">양식</button>
+    <button class="chip" onclick="toggleFilter(this,'고기')">고기</button>
+  </div>
+  <div class="restaurant-grid" id="r-grid"></div>
+  <div class="detail-panel" id="detail-panel">
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<div id="tab-staff" style="display:none;">
+  <div class="staff-view" id="staff-grid"></div>
+</div>
+
+<div id="tab-risk" style="display:none;" id="risk-tab">
+  <div id="risk-content"></div>
+</div>
+
+<script>
+const staff = [
+  { name:"김대리", role:"대리", pref:["한식","국물"], dislike:["매운음식"], allergy:null, note:"오후 회의 전 가벼운 식사 선호" },
+  { name:"이책임", role:"책임", pref:["일식","덮밥"], dislike:["기름진 음식"], allergy:null, note:"빠른 식사 선호" },
+  { name:"박선임", role:"선임", pref:["샐러드","분식"], dislike:["해산물"], allergy:"새우 알러지", note:"채소 많은 메뉴 선호" },
+  { name:"최부장", role:"부장", pref:["한식","고기"], dislike:["면류"], allergy:null, note:"조용한 장소 선호" },
+  { name:"정사원", role:"사원", pref:["양식","버거"], dislike:["국물"], allergy:null, note:"커피 가까운 곳 선호" },
+  { name:"오매니저", role:"매니저", pref:["비빔밥","한식"], dislike:["치즈"], allergy:"유당 민감", note:"계산서 필요" },
+  { name:"한주임", role:"주임", pref:["중식","덮밥"], dislike:["생선"], allergy:null, note:"매운맛 보통" },
+  { name:"강책임", role:"책임", pref:["고기","찌개"], dislike:["샐러드만"], allergy:null, note:"주차 가능 선호" },
+  { name:"유대리", role:"대리", pref:["분식","일식"], dislike:["고수"], allergy:null, note:"예산 중요" },
+  { name:"송사원", role:"사원", pref:["샌드위치","샐러드"], dislike:["매운음식"], allergy:"채식 지향", note:"육류 적은 메뉴 선호" },
+  { name:"남PM", role:"PM", pref:["한식","중식"], dislike:["대기 긴 곳"], allergy:null, note:"12:50 전 복귀 필요" },
+  { name:"문대표", role:"대표", pref:["정갈한 한식"], dislike:["시끄러운 곳"], allergy:null, note:"고객 동행 가능성 있음" },
+];
+
+const restaurants = [
+  {
+    id:1, name:"다원푸드", type:"한식 뷔페", rating:4.7, price:"₩6,000",
+    category:"한식", rec:true,
+    pros:"6천원 뷔페 · 빠른 식사 · 계산서 가능 · 알러지 자율 선택",
+    risk:null,
+    hours:"영업시간 미확인",
+    matchStaff:["김대리","최부장","오매니저","강책임","남PM","문대표","유대리"],
+    warnStaff:[],
+    notes:"뷔페 형식이라 새우·유제품·육류 모두 자율 조절 가능. 전체 회식 최우선 추천."
+  },
+  {
+    id:2, name:"홍대구루메 인천논현점", type:"일식·덮밥·라멘", rating:4.7, price:"보통",
+    category:"일식",rec:false,
+    pros:"라멘·스시·덮밥 다양 · 빠른 서비스 · 11:30 오픈",
+    risk:"새우 메뉴 포함 → 박선임 주의",
+    hours:"11:30 ~ 21:30",
+    matchStaff:["이책임","한주임","유대리","정사원"],
+    warnStaff:["박선임"],
+    notes:"박선임 새우 알러지 개별 확인 필요. 거리 약 2km."
+  },
+  {
+    id:3, name:"Godam (고담)", type:"한우·BBQ", rating:4.7, price:"고급",
+    category:"고기", rec:false,
+    pros:"조용한 분위기 · 고급 한우 · 고객 동행 적합",
+    risk:"월요일 휴무 · 유제품 메뉴 일부 포함",
+    hours:"12:00 ~ 23:00 (월 휴무)",
+    matchStaff:["최부장","강책임","문대표"],
+    warnStaff:["오매니저"],
+    notes:"문대표 고객 동행 시 추천. 월요일 방문 불가."
+  },
+  {
+    id:4, name:"명품차이나", type:"중식", rating:4.3, price:"보통",
+    category:"중식", rec:false,
+    pros:"짜장·짬뽕 전문 · 가성비 양호",
+    risk:"짬뽕 해산물 포함 → 박선임 주의",
+    hours:"영업시간 미확인",
+    matchStaff:["한주임","남PM"],
+    warnStaff:["박선임"],
+    notes:"한주임 중식 덮밥 선호 충족. 짬뽕 해산물 박선임 주의."
+  },
+  {
+    id:5, name:"Melting Room", type:"양식·버거·파스타", rating:4.2, price:"보통",
+    category:"양식", rec:false,
+    pros:"'지역 최고 버거' 리뷰 다수 · 월요일 휴무 주의",
+    risk:"거리 약 3km · 월요일 휴무",
+    hours:"11:00 ~ 21:00 (월 휴무)",
+    matchStaff:["정사원","송사원"],
+    warnStaff:[],
+    notes:"정사원 양식·버거 선호. 송사원 채식 파스타 옵션 확인 필요."
+  },
+];
+
+let activeFilter = 'all';
+let selectedId = null;
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['restaurant','staff','risk'][i]===tab));
+  document.getElementById('tab-restaurant').style.display = tab==='restaurant'?'':'none';
+  document.getElementById('tab-staff').style.display = tab==='staff'?'':'none';
+  document.getElementById('tab-risk').style.display = tab==='risk'?'':'none';
+  if(tab==='staff') renderStaff();
+  if(tab==='risk') renderRisk();
+}
+
+function toggleFilter(el, val) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  activeFilter = val;
+  selectedId = null;
+  document.getElementById('detail-panel').classList.remove('visible');
+  renderRestaurants();
+}
+
+function renderRestaurants() {
+  const filtered = activeFilter==='all' ? restaurants : restaurants.filter(r=>r.category===activeFilter||r.type.includes(activeFilter));
+  const grid = document.getElementById('r-grid');
+  grid.innerHTML = filtered.map(r => `
+    <div class="r-card${selectedId===r.id?' selected':''}" onclick="selectRestaurant(${r.id})">
+      <div class="r-header">
+        <div>
+          ${r.rec ? '<span class="rec-badge"><i class="ti ti-star" aria-hidden="true" style="font-size:11px;vertical-align:-1px;margin-right:3px;"></i>전체 추천 1순위</span><br>' : ''}
+          <span class="r-name">${r.name}</span>
+        </div>
+        <span class="r-rating"><i class="ti ti-star-filled" aria-hidden="true" style="font-size:12px;vertical-align:-1px;"></i> ${r.rating}</span>
+      </div>
+      <span class="r-type-badge">${r.type}</span>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">${r.price} · ${r.hours}</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;">매칭 직원</div>
+      <div class="r-staff">
+        ${r.matchStaff.map(s=>`<div class="avatar match" title="${s}">${s.slice(0,1)}${s.slice(-1)}</div>`).join('')}
+        ${r.warnStaff.map(s=>`<div class="avatar warn" title="${s} ⚠">${s.slice(0,1)}${s.slice(-1)}</div>`).join('')}
+      </div>
+      ${r.risk ? `<div class="risk-tag"><i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:11px;"></i>${r.risk}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function selectRestaurant(id) {
+  if(selectedId===id) {
+    selectedId=null;
+    document.getElementById('detail-panel').classList.remove('visible');
+    renderRestaurants();
+    return;
+  }
+  selectedId=id;
+  renderRestaurants();
+  const r = restaurants.find(x=>x.id===id);
+  const matchDetails = r.matchStaff.map(name=>{
+    const s = staff.find(x=>x.name===name);
+    return `<div class="staff-row"><div class="status-dot dot-good"></div><span class="staff-name">${name}</span><span class="staff-pref">${s.pref.join('·')} 선호${s.allergy?` / ⚠ ${s.allergy}`:''}</span></div>`;
+  }).join('');
+  const warnDetails = r.warnStaff.map(name=>{
+    const s = staff.find(x=>x.name===name);
+    return `<div class="staff-row"><div class="status-dot dot-warn"></div><span class="staff-name">${name}</span><span class="staff-pref">${s.allergy||s.dislike.join('·')} 주의</span></div>`;
+  }).join('');
+  const panel = document.getElementById('detail-panel');
+  document.getElementById('detail-content').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:16px;font-weight:500;color:var(--color-text-primary);">${r.name}</span>
+      <button onclick="document.getElementById('detail-panel').classList.remove('visible');selectedId=null;renderRestaurants();" style="font-size:12px;padding:4px 10px;">닫기</button>
+    </div>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin-top:6px;">${r.notes}</p>
+    <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;">
+      <span style="font-size:12px;padding:3px 10px;border-radius:10px;background:var(--color-background-info);color:var(--color-text-info);">${r.pros}</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-section"><h3>매칭 직원 (${r.matchStaff.length}명)</h3>${matchDetails}</div>
+      <div class="detail-section"><h3>주의 직원 (${r.warnStaff.length}명)</h3>${warnDetails||'<div style="font-size:13px;color:var(--color-text-secondary);">해당 없음</div>'}</div>
+    </div>
+  `;
+  panel.classList.add('visible');
+}
+
+function renderStaff() {
+  const grid = document.getElementById('staff-grid');
+  grid.innerHTML = staff.map(s => {
+    const bestRest = restaurants.filter(r=>r.matchStaff.includes(s.name));
+    const warnRest = restaurants.filter(r=>r.warnStaff.includes(s.name));
+    return `
+    <div class="staff-card">
+      <div class="staff-card-header">
+        <div class="staff-avatar-lg">${s.name.slice(0,1)}</div>
+        <div><div class="staff-title-name">${s.name}</div><div class="staff-role">${s.role}</div></div>
+      </div>
+      <div class="pref-row">
+        ${s.pref.map(p=>`<span class="pref-chip-good">${p}</span>`).join('')}
+        ${s.dislike.map(d=>`<span class="pref-chip-bad">✕ ${d}</span>`).join('')}
+      </div>
+      ${s.allergy ? `<div style="margin-top:5px;"><span class="pref-chip-warn">⚠ ${s.allergy}</span></div>` : ''}
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-top:5px;">${s.note}</div>
+      ${bestRest.length ? `<div class="best-pick"><i class="ti ti-check" aria-hidden="true" style="font-size:12px;vertical-align:-1px;"></i> ${bestRest.map(r=>r.name).join(', ')}</div>` : ''}
+      ${warnRest.length ? `<div style="font-size:12px;color:var(--color-text-danger);margin-top:3px;"><i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:12px;vertical-align:-1px;"></i> ${warnRest.map(r=>r.name).join(', ')} 주의</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderRisk() {
+  const risks = [
+    { level:"high", icon:"ti-alert-circle", title:"박선임 — 새우 알러지", desc:"홍대구루메(일식) 및 명품차이나(중식 짬뽕)에 새우 포함 메뉴 多. 방문 전 반드시 개별 메뉴 확인 또는 해당 식당 주문 시 사전 고지 필요.", rest:["홍대구루메 인천논현점","명품차이나"] },
+    { level:"high", icon:"ti-alert-circle", title:"오매니저 — 유당 민감", desc:"Godam(고담)에 치즈·버터 기반 메뉴 포함 가능. 유제품 함유 여부 사전 확인 필요. 다원푸드 뷔페는 선택적 회피 가능.", rest:["Godam (고담)"] },
+    { level:"med", icon:"ti-clock", title:"남PM — 12:50 전 복귀 조건", desc:"홍대구루메·Melting Room은 거리 2~3km로 이동 포함 시 시간 빠듯. 대기 없는 뷔페형(다원푸드) 또는 빠른 식사 가능한 근거리 식당 권장.", rest:["홍대구루메 인천논현점","Melting Room"] },
+    { level:"med", icon:"ti-calendar-off", title:"Godam · Melting Room — 월요일 휴무", desc:"두 곳 모두 월요일 정기 휴무. 회식 요일 반드시 확인 필요.", rest:["Godam (고담)","Melting Room"] },
+    { level:"low", icon:"ti-leaf", title:"송사원 — 채식 지향", desc:"육류 적은 메뉴 선호. Melting Room에서 채식 파스타 또는 샐러드 옵션 사전 확인 권장. 다원푸드 뷔페에서 자율 선택 가능.", rest:["Melting Room"] },
+  ];
+  const colors = { high:"danger", med:"warning", low:"success" };
+  const labels = { high:"높음", med:"보통", low:"낮음" };
+  document.getElementById('risk-content').innerHTML = `
+    <div style="margin-bottom:1rem;font-size:13px;color:var(--color-text-secondary);">음식점 선택 전 반드시 확인해야 할 리스크 항목입니다. 카드 클릭 시 관련 음식점이 강조됩니다.</div>
+    ${risks.map(r=>`
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-left:3px solid var(--color-border-${colors[r.level]});border-radius:var(--border-radius-md);padding:0.875rem 1rem;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <i class="ti ${r.icon}" aria-hidden="true" style="font-size:16px;color:var(--color-text-${colors[r.level]});"></i>
+          <span style="font-size:14px;font-weight:500;color:var(--color-text-primary);">${r.title}</span>
+        </div>
+        <span style="font-size:11px;padding:2px 8px;border-radius:10px;background:var(--color-background-${colors[r.level]});color:var(--color-text-${colors[r.level]});">리스크 ${labels[r.level]}</span>
+      </div>
+      <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">${r.desc}</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        ${r.rest.map(name=>`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);">${name}</span>`).join('')}
+      </div>
+    </div>`).join('')}
+    <div style="margin-top:1.25rem;padding:1rem;background:var(--color-background-success);border-radius:var(--border-radius-md);">
+      <div style="font-size:13px;font-weight:500;color:var(--color-text-success);margin-bottom:4px;"><i class="ti ti-shield-check" aria-hidden="true" style="font-size:14px;vertical-align:-2px;margin-right:4px;"></i>전체 리스크 최소화 선택</div>
+      <div style="font-size:13px;color:var(--color-text-success);">다원푸드(한식 뷔페) — 알러지·채식·유당 모두 자율 선택 가능, 빠른 식사, 저렴한 비용</div>
+    </div>
+  `;
+}
+
+renderRestaurants();
+</script>
